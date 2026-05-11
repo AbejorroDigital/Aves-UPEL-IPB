@@ -1,0 +1,166 @@
+<!--
+  Proyecto: Aves UPEL IPB - Visor 3D Interactivo
+  Autor: Carlos García Torín "Abejorro Digital"
+  Fecha: Mayo 2026
+-->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aves UPEL IPB – Visor 3D de Aves</title>
+    <meta name="description"
+        content="Explora modelos 3D interactivos de aves del entorno del Instituto Pedagógico de Barquisimeto (UPEL-IPB). Conoce su nombre, familia y datos científicos." />
+    <link rel="stylesheet" href="estilos.css" />
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+</head>
+
+<body>
+
+    <!-- ===== CABECERA ===== -->
+    <header class="cabecera">
+        <div class="cabecera__logo">
+            <svg class="cabecera__icono" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true">
+                <ellipse cx="32" cy="42" rx="18" ry="12" fill="#6b3a2a" />
+                <path d="M32 30 Q44 18 58 20 Q46 28 38 34 Z" fill="#4a6fa5" />
+                <path d="M32 30 Q20 18 8 22 Q20 28 26 34 Z" fill="#7da4d0" />
+                <circle cx="42" cy="22" r="4" fill="#e8c97a" />
+                <circle cx="43" cy="21" r="1.5" fill="#1a1a1a" />
+                <path d="M46 24 L52 26 L46 26 Z" fill="#c8943a" />
+            </svg>
+            <div>
+                <h1 class="cabecera__titulo">Aves UPEL IPB</h1>
+                <p class="cabecera__subtitulo">Visor interactivo de modelos 3D · Instituto Pedagógico de Barquisimeto
+                </p>
+            </div>
+        </div>
+
+        <!-- Selector de ave -->
+        <div class="selector-contenedor">
+            <label for="selectorAve" class="selector-label">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    aria-hidden="true">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                Seleccionar ave
+            </label>
+            <div class="selector-wrapper">
+                <select id="selectorAve" class="selector-ave">
+                    <option value="" disabled selected>— Elige un ave —</option>
+                    <!-- TODO: Rehabilitar cuando se optimice el peso del modelo (.glb) -->
+          <!-- <option value="Azulejo de jardin 3D">Azulejo de jardín</option> -->
+                    <option value="Cernicalo Vulgar 3D">Cernícalo Vulgar</option>
+                    <option value="Cristofue 3D">Cristofué</option>
+                    <option value="Garrapatero 3D">Garrapatero</option>
+                    <option value="Gavilan Habado 3D">Gavilán Habado</option>
+                    <option value="Gonzalito 3D">Gonzalito</option>
+                    <!-- TODO: Rehabilitar cuando se optimice el peso del modelo (.glb) -->
+          <!-- <option value="Loro Guaro 3D">Loro Guaro</option> -->
+                    <option value="Paloma Maraquita 3D">Paloma Maraquita</option>
+                    <option value="Paloma sabanera 3D">Paloma Sabanera</option>
+                    <option value="Paraulata Llanera">Paraulata Llanera</option>
+                </select>
+                <svg class="selector-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <polyline points="6 9 12 15 18 9" />
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== VISOR 3D ===== -->
+    <section class="visor-seccion" id="visor-seccion">
+
+        <!-- Contenedor A-Frame -->
+        <div class="visor-wrapper" id="visorWrapper">
+
+            <!-- Pantalla de bienvenida -->
+            <div class="visor-bienvenida" id="visorBienvenida">
+                <div class="bienvenida-icono">🦜</div>
+                <p class="bienvenida-texto">Selecciona un ave en el menú superior<br>para visualizar su modelo 3D
+                    interactivo</p>
+                <p class="bienvenida-hint">🖱️ Arrastra para rotar · 🔍 Rueda para zoom · 📱 Pellizca para escalar</p>
+            </div>
+
+            <!-- Escena A-Frame (oculta hasta que se cargue un modelo) -->
+            <a-scene id="escenaAframe" embedded renderer="colorManagement: true; antialias: true"
+                vr-mode-ui="enabled: false" loading-screen="enabled: false" class="escena-oculta">
+
+                <!-- Assets: textura de sombra y fondo -->
+                <a-assets>
+                    <img id="shadow"
+                        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+                        crossorigin="anonymous" />
+                    <img id="fondoImg" src="fondo.png" crossorigin="anonymous" />
+                </a-assets>
+
+                <!-- Fondo equirectangular / skybox con fondo.png -->
+                <a-sky src="#fondoImg" rotation="0 -90 0"></a-sky>
+
+            </a-scene>
+
+            <!-- Botón de captura -->
+            <button class="btn-captura" id="btnCaptura" title="Capturar imagen del modelo"
+                aria-label="Capturar imagen del modelo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    aria-hidden="true">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                </svg>
+                Capturar
+            </button>
+
+            <!-- Indicador de carga -->
+            <div class="cargando" id="cargando" aria-live="polite">
+                <div class="cargando-spinner"></div>
+                <span>Cargando modelo…</span>
+            </div>
+        </div>
+
+        <!-- Instrucciones de interacción -->
+        <div class="instrucciones" id="instrucciones">
+            <span>🖱️ Clic + arrastrar: rotar</span>
+            <span>🖱️ Botón derecho + arrastrar: desplazar</span>
+            <span>⚙️ Rueda: zoom</span>
+            <span>📱 Un dedo: rotar · Dos dedos: zoom</span>
+        </div>
+    </section>
+
+    <!-- ===== TARJETA DE INFORMACIÓN ===== -->
+    <section class="info-seccion" id="infoSeccion" aria-live="polite">
+        <div class="info-tarjeta" id="infoTarjeta">
+            <div class="info-placeholder" id="infoPlaceholder">
+                <span class="info-placeholder-icono">🐦</span>
+                <p>La información científica del ave aparecerá aquí una vez que selecciones un modelo.</p>
+            </div>
+            <div class="info-contenido oculto" id="infoContenido">
+                <div class="info-encabezado">
+                    <div>
+                        <h2 class="info-nombre" id="infoNombre"></h2>
+                        <p class="info-cientifico" id="infoCientifico"></p>
+                    </div>
+                    <span class="info-familia-badge" id="infoFamilia"></span>
+                </div>
+                <p class="info-descripcion" id="infoDescripcion"></p>
+                <div class="info-dato">
+                    <span class="info-dato-label">💡 Dato clave</span>
+                    <p class="info-dato-texto" id="infoDato"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PIE DE PÁGINA ===== -->
+    <footer class="footer">
+        <p>Desarrollado por Carlos García Torín <a href="https://abejorrodigital.com"><em>"Abejorro Digital"</em></a>
+            &mdash; mayo 2026</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
